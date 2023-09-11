@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Expense;
 use Illuminate\Http\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Models\Expense;
+
 
 class ExpenseController extends Controller
 {
@@ -14,7 +16,9 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        return Expense::all()->toJson();
+        // return auth()->user()->expenses(); doesn't work sha
+        $userId = auth()->user()->id;
+        return response(Expense::where('user_id', $userId)->get());
     }
 
     /**
@@ -33,14 +37,19 @@ class ExpenseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(int $id)
+    public function show(Request $request, int $id)
     {
-        $expense = Expense::find($id);
-
-        if (!$expense) {
-            return response()->json(['message' => 'Image not found'], Response::HTTP_NOT_FOUND);
+        try {
+            $expense = Expense::findOrFail($id);
+        } catch (ModelNotFoundException $exception) {
+            return response()->json(['message' => 'Expense not found'], 404);
+        }
+        if ($expense->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Expense does not belong to you'], 403);
         }
         return response($expense, Response::HTTP_OK);
+
+
     }
 
     /**
