@@ -9,4 +9,10 @@ class Expense extends Model
 {
     use HasFactory;
     protected $fillable = ['description', 'amount'];
+
+    public function getAmountAttribute($value)
+    {
+        return (float) $value; // Explicitly cast the value to a float
+    }
+
 }
