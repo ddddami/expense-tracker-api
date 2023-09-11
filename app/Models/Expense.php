@@ -15,4 +15,10 @@ class Expense extends Model
         return (float) $value; // Explicitly cast the value to a float
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+
 }
