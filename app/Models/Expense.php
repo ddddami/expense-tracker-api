@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Expense extends Model
 {
     use HasFactory;
-    protected $fillable = ['description', 'amount'];
+    protected $fillable = ['description', 'amount', 'user_id'];
 
     public function getAmountAttribute($value)
     {

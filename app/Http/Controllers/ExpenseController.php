@@ -30,6 +30,9 @@ class ExpenseController extends Controller
             'description' => 'required|string',
             'amount' => 'required|numeric'
         ]);
+        $userId = $request->user()->id;
+        $data['user_id'] = $userId;
+
         $expense = Expense::create($data);
         return response($expense, Response::HTTP_CREATED);
     }
