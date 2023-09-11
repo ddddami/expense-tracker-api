@@ -42,10 +42,10 @@ class ExpenseController extends Controller
         try {
             $expense = Expense::findOrFail($id);
         } catch (ModelNotFoundException $exception) {
-            return response()->json(['message' => 'Expense not found'], 404);
+            return response()->json(['message' => 'Expense not found'], Response::HTTP_NOT_FOUND);
         }
         if ($expense->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Expense does not belong to you'], 403);
+            return response()->json(['message' => 'Expense does not belong to you'], Response::HTTP_FORBIDDEN);
         }
         return response($expense, Response::HTTP_OK);
 
@@ -62,9 +62,15 @@ class ExpenseController extends Controller
             'amount' => 'numeric',
             'description' => 'string'
         ]);
-
-        // returns 404 automatically if find fails sogbo Dami
-        $expense = Expense::findOrFail($id);
+        try {
+            // returns 404 automatically and throws an error (not a nice message to the client) if find fails
+            $expense = Expense::findOrFail($id);
+        } catch (ModelNotFoundException $ex) {
+            return response()->json(['message' => 'Expense not found'], Response::HTTP_NOT_FOUND);
+        }
+        if ($expense->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'You do not have the permission to perform that action!'], Response::HTTP_FORBIDDEN);
+        }
 
         $expense->update($validatedData);
 
@@ -74,8 +80,18 @@ class ExpenseController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(int $id)
+    public function destroy(Request $request, int $id)
     {
-        return Expense::destroy($id);
+        try {
+            // returns 404 automatically and throws an error (not a nice message to the client) if find fails
+            $expense = Expense::findOrFail($id);
+        } catch (ModelNotFoundException $ex) {
+            return response()->json(['message' => 'Expense already deleted'], Response::HTTP_NOT_FOUND);
+        }
+        if ($expense->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'You do not have the permission to perform that action!'], Response::HTTP_FORBIDDEN);
+        }
+        // destroy -> present on class, delete -> present on instance
+        return $expense::delete();
     }
 }
