@@ -24,5 +24,21 @@ class AuthController extends Controller
         $data = ['user' => $user, 'token' => $token];
         return response($data, Response::HTTP_CREATED);
     }
+    public function login(Request $request)
+    {
+        $fields = $request->validate(['email' => 'required', 'password' => 'required']);
+        $user = User::where('email', $fields['email'])->first();
+        if (!$user || !Hash::check($fields['password'], $user->password)) {
+            return response(['message' => 'invalid creds']);
+        }
+        $token = $user->createToken('token')->plainTextToken;
+        $data = ['user' => $user, 'token' => $token];
+        return response($data, Response::HTTP_OK);
+    }
 
+    public function logout(Request $request)
+    {
+        auth()->user()->tokens()->delete();
+        return response(['message' => 'successfully logged out.'], Response::HTTP_NO_CONTENT);
+    }
 }
