@@ -92,6 +92,6 @@ class ExpenseController extends Controller
             return response()->json(['message' => 'You do not have the permission to perform that action!'], Response::HTTP_FORBIDDEN);
         }
         // destroy -> present on class, delete -> present on instance
-        return $expense::delete();
+        return $expense->delete();
     }
 }
