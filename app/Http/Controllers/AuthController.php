@@ -29,7 +29,7 @@ class AuthController extends Controller
         $fields = $request->validate(['email' => 'required', 'password' => 'required']);
         $user = User::where('email', $fields['email'])->first();
         if (!$user || !Hash::check($fields['password'], $user->password)) {
-            return response(['message' => 'invalid creds']);
+            return response(['message' => 'invalid creds'], Response::HTTP_FORBIDDEN);
         }
         $token = $user->createToken('token')->plainTextToken;
         $data = ['user' => $user, 'token' => $token];
