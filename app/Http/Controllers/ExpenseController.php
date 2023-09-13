@@ -28,8 +28,10 @@ class ExpenseController extends Controller
     {
         $data = $request->validate([
             'description' => 'required|string',
-            'amount' => 'required|numeric'
+            'amount' => 'required|numeric',
+            'category' => 'required|in:' . implode(',', ['Groceries', 'Utilities', 'Entertainment']),
         ]);
+
         $userId = $request->user()->id;
         $data['user_id'] = $userId;
 
@@ -63,7 +65,9 @@ class ExpenseController extends Controller
     {
         $validatedData = $request->validate([
             'amount' => 'numeric',
-            'description' => 'string'
+            'description' => 'string',
+            'category' => 'required|in:' . implode(',', ['Groceries', 'Utilities', 'Entertainment']),
+
         ]);
         try {
             // returns 404 automatically and throws an error (not a nice message to the client) if find fails
